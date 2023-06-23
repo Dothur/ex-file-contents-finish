@@ -1,5 +1,6 @@
 package com.example.contents;
 
+import com.example.contents.dto.ResponseDto;
 import com.example.contents.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,16 @@ public class UserController {
     ) {
         return service.updateUserAvatar(id, avatarImage);
     }
+
+    // ExceptionHandler : Controller 내부에서 지정된 예외가 발생했을 때
+    // 실행하는 메소드에 붙이는 어노테이션
+//    @ExceptionHandler(IllegalStateException.class)
+//    public ResponseDto handleIllegalState(IllegalStateException exception) {
+//        log.error(exception.getMessage());
+//
+//        ResponseDto response = new ResponseDto();
+//        response.setMessage("이러저러한 이유로 에러가 발생했습니다.");
+//
+//        return response;
+//    }
 }
-
-

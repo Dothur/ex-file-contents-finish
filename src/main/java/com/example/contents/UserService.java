@@ -2,6 +2,8 @@ package com.example.contents;
 
 import com.example.contents.dto.UserDto;
 import com.example.contents.entity.UserEntity;
+import com.example.contents.exceptions.UserNotFoundException;
+import com.example.contents.exceptions.UsernameExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,20 +24,46 @@ public class UserService {
 
     // createUser
     public UserDto createUser(UserDto dto) {
+        // 이름 중복 확인
+        // 이후 생성
+        if (repository.existsByUsername(dto.getUsername())) // 이미 사용중
+            throw new UsernameExistException();
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        // 생성 과정 (이전과 같음)
+        UserEntity newUser = new UserEntity();
+        newUser.setUsername(dto.getUsername());
+        newUser.setEmail(dto.getEmail());
+        newUser.setPhone(dto.getPhone());
+        newUser.setBio(dto.getBio());
         // 1. 회원가입 => 프로필 이미지가 아직 필요없다.
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+        return UserDto.fromEntity(repository.save(newUser));
     }
 
     // readUserByUsername
     public UserDto readUserByUsername(String username) {
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+        Optional<UserEntity> optionalUser = repository.findByUsername(username);
+        if (optionalUser.isEmpty())
+            throw new UserNotFoundException();
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        return UserDto.fromEntity(optionalUser.get());
     }
 
     // updateUser
     public UserDto updateUser(Long id, UserDto dto) {
         // update user 로 사용자 username 은 변경할 수 없도록
+        Optional<UserEntity> optionalUser = repository.findById(id);
+        if (optionalUser.isEmpty())
+            throw new UserNotFoundException();
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+        UserEntity userEntity = optionalUser.get();
+        userEntity.setEmail(dto.getEmail());
+        userEntity.setPhone(dto.getPhone());
+        userEntity.setBio(dto.getBio());
+
+        return UserDto.fromEntity(repository.save(userEntity));
     }
 
     // updateUserAvatar
@@ -43,7 +71,9 @@ public class UserService {
         // 사용자가 프로필 이미지를 업로드 한다.
         // 1. 유저 존재 확인
         Optional<UserEntity> optionalUser = repository.findById(id);
-        if (optionalUser.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (optionalUser.isEmpty())
+            throw new UserNotFoundException();
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
         // media/filename.png
         // media/<업로드 시각>.png
