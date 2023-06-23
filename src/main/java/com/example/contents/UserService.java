@@ -33,6 +33,7 @@ public class UserService {
 
     // updateUser
     public UserDto updateUser(Long id, UserDto dto) {
+        // update user 로 사용자 username 은 변경할 수 없도록
 
         throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
     }
@@ -80,9 +81,13 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        // 4. UserEntity 업데이트
+        // 4. UserEntity 업데이트 (정적 프로필 이미지를 회수할 수 있는 URL)
+        // http://localhost:8080/static/1/profile.png
+        log.info(String.format("/static/%d/%s", id, profileFilename));
         // TODO
-
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+        UserEntity userEntity = optionalUser.get();
+        userEntity.setAvatar(String.format("/static/%d/%s", id, profileFilename));
+        return UserDto.fromEntity(repository.save(userEntity));
+//        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
     }
 }
